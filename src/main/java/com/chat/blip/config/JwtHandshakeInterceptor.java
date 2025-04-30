@@ -32,10 +32,11 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
 
         if (request instanceof ServletServerHttpRequest servletRequest) {
             HttpServletRequest httpRequest = servletRequest.getServletRequest();
-            String authHeader = httpRequest.getHeader("Authorization");
 
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                String token = authHeader.substring(7);
+            // Get JWT from query param instead of header
+            String token = httpRequest.getParameter("token");
+
+            if (token != null) {
                 try {
                     String username = jwtService.extractUsername(token);
                     var userDetails = userDetailsService.loadUserByUsername(username);
@@ -45,7 +46,6 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
                                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
                         SecurityContextHolder.getContext().setAuthentication(authentication);
-
                         attributes.put("username", username);
                         return true;
                     }
@@ -63,5 +63,6 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
                                ServerHttpResponse response,
                                WebSocketHandler wsHandler,
                                Exception exception) {
+        // Optional logging
     }
 }
