@@ -1,5 +1,6 @@
 package com.chat.blip.config;
 
+import com.chat.blip.config.JwtHandshakeInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.*;
@@ -8,16 +9,23 @@ import org.springframework.web.socket.config.annotation.*;
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    private final JwtHandshakeInterceptor jwtHandshakeInterceptor;
+
+    public WebSocketConfig(JwtHandshakeInterceptor jwtHandshakeInterceptor) {
+        this.jwtHandshakeInterceptor = jwtHandshakeInterceptor;
+    }
+
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws") // WebSocket endpoint for clients
-                .setAllowedOriginPatterns("*") // Allow from all origins (later you can restrict for security)
-                .withSockJS(); // Enable SockJS fallback for browsers that don't support WebSocket
+        registry.addEndpoint("/ws")
+                .addInterceptors(jwtHandshakeInterceptor)
+                .setAllowedOriginPatterns("*")
+                .withSockJS();
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/topic"); // Messages with /topic prefix will be broadcasted
-        registry.setApplicationDestinationPrefixes("/app"); // Client will send messages to /app/*
+        registry.enableSimpleBroker("/topic");
+        registry.setApplicationDestinationPrefixes("/app");
     }
 }

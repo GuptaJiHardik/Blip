@@ -1,24 +1,24 @@
 package com.chat.blip.controller;
 
 import com.chat.blip.entity.ChatMessage;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 @Controller
 public class ChatController {
 
-    private final SimpMessagingTemplate messagingTemplate;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
-    public ChatController(SimpMessagingTemplate messagingTemplate) {
-        this.messagingTemplate = messagingTemplate;
+    // Inject the SimpMessagingTemplate to send messages to subscribers
+    public ChatController(SimpMessagingTemplate simpMessagingTemplate) {
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
-    @MessageMapping("/chat/{roomId}")
-    public void sendMessage(@DestinationVariable String roomId, ChatMessage chatMessage) {
-        System.out.println("Received message for Room " + roomId + ": " + chatMessage.getContent());
-        messagingTemplate.convertAndSend("/topic/room/" + roomId, chatMessage);
+    // Handle messages sent to "/app/hello" (as per the frontend example)
+    @MessageMapping("/hello")
+    public void handleChatMessage(ChatMessage message) {
+        // Send the message to the topic (this will broadcast to all subscribers of "/topic/messages")
+        simpMessagingTemplate.convertAndSend("/topic/messages", message);
     }
 }

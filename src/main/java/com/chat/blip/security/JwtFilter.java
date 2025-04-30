@@ -27,11 +27,10 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String path = request.getServletPath();
-        if (path.startsWith("/auth")) {
+        if (path.startsWith("/auth") || path.startsWith("/ws")) {
             chain.doFilter(request, response);
             return;
         }
-
         String authHeader = request.getHeader("Authorization");
         String token = null;
         String username = null;
@@ -55,7 +54,6 @@ public class JwtFilter extends OncePerRequestFilter {
             if (jwtService.validateToken(token, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                //authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request)); // 👈 Very Important Line
 
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
