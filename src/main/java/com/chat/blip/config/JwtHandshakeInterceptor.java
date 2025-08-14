@@ -50,7 +50,7 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
                         return true;
                     }
                 } catch (Exception e) {
-                    return false;
+                    return true;
                 }
             }
         }
